@@ -4,6 +4,7 @@
 test/
 /build/*
 /build/**
+/nbproject/**
 
 build.xml
 buildBackup.xml
@@ -26,6 +27,9 @@ buildBackup.xml
 .Trashes
 ehthumbs.db
 Thumbs.db
-nbproject/build-impl.xml
+
 
 nbproject/genfiles.properties
+*.xml
+
+*.xml
