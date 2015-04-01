@@ -45,9 +45,8 @@ public class BayesServerApp extends SingleFrameApplication {
      */
     public static void main(String[] args) {
         // turn on anti-aliasing for smooth fonts.
-
-       
-       System.setProperty( "swing.aatext", "true" );
+        System.setProperty("java.net.preferIPv4Stack" , "true");
+        System.setProperty( "swing.aatext", "true" );
         String homedir      =   System.getProperty("user.home");
         String curdir       =   System.getProperty("user.dir");
        
