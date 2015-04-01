@@ -5,16 +5,17 @@ test/
 /build/*
 /build/**
 
+build.xml
 buildBackup.xml
 
 # Compiled source #
 ###################
-*.com
-*.class
-*.dll
-*.exe
-*.o
-*.so
+**.com
+**.class
+**.dll
+**.exe
+**.o
+**.so
 
 # OS generated files #
 ######################

@@ -1814,7 +1814,6 @@ public class Installer implements Constants{
         return url;
     }
   
-
    
 
     public static void main(String [] args){
