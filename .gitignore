@@ -32,4 +32,5 @@ Thumbs.db
 nbproject/genfiles.properties
 *.xml
 **.mf
+manifest.mf
 
