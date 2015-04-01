@@ -7,6 +7,7 @@ test/
 /nbproject/**
 
 build.xml
+preview-application.html
 buildBackup.xml
 
 # Compiled source #
