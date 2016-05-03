@@ -36,3 +36,6 @@ nbproject/genfiles.properties
 *.jnlp
 /manifest.mf
 
+
+signed/**
+*.so
