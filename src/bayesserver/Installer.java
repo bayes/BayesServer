@@ -130,11 +130,6 @@ public class Installer implements Constants{
         installation = newInstallStage;
     }
 
-
-    public Installer(String dummy){
-        System.out.println("dummy");
-    }
-
     public Installer(){
         System.out.println("Starting installer");
         System.out.println("Reading System Variables");

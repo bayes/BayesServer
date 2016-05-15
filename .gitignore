@@ -37,5 +37,6 @@ nbproject/genfiles.properties
 /manifest.mf
 
 
+build/**
 signed/**
 *.so
