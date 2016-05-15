@@ -51,7 +51,7 @@ public class ModifyConfigurationFiles  implements Constants{
 
 
 
-        public static boolean modifyLinuxStartStopFile(Installer installer){
+        public static boolean modifyLinuxStartStopFile(BaseInstaller installer){
             String string       =   IO.readFileToString(installer.getVirginStartStopFile());
             StringBuilder sb    =   new StringBuilder();
             Scanner scanner     =   new Scanner(string);
@@ -123,7 +123,7 @@ public class ModifyConfigurationFiles  implements Constants{
             boolean write = IO.writeFileFromString(sb.toString(),dst);
             return write;
         }
-        public static boolean modifyLinuxConfigFile(Installer installer){
+        public static boolean modifyLinuxConfigFile(BaseInstaller installer){
             File   src                  =   installer.getVirginConfFile();
             String string               =   IO.readFileToString(src );
             StringBuilder sb            =   new StringBuilder();
@@ -161,7 +161,7 @@ public class ModifyConfigurationFiles  implements Constants{
                  */
                     scanner.nextLine();// skip Group line
 
-                    newLine              =   User    + " "+ Installer.getUserName()  + "\n";
+                    newLine              =   User    + " "+ InstallerWIthApache1.getUserName()  + "\n";
                     newLine             +=   Group   + " "+ installer.group   ;
                     PREVIOUSKEY          =   User;
                 }
@@ -321,7 +321,7 @@ public class ModifyConfigurationFiles  implements Constants{
 
 
 
-        public static boolean modifySunStartStopFile(Installer installer){
+        public static boolean modifySunStartStopFile(BaseInstaller installer){
             String string       =   IO.readFileToString(installer.getVirginStartStopFile());
             StringBuilder sb    =   new StringBuilder();
             Scanner scanner     =   new Scanner(string);
@@ -370,7 +370,7 @@ public class ModifyConfigurationFiles  implements Constants{
             boolean write = IO.writeFileFromString(sb.toString(),dst);
             return write;
         }
-        public static boolean modifySunConfigFile(Installer installer){
+        public static boolean modifySunConfigFile(BaseInstaller installer){
             File   src          =   installer.getVirginConfFile();
             String string       =   IO.readFileToString(src );
             StringBuilder sb    =   new StringBuilder();
@@ -409,7 +409,7 @@ public class ModifyConfigurationFiles  implements Constants{
 
                     scanner.nextLine();// skip Group line
 
-                    newLine              =   User    + " "+ Installer.getUserName()  + "\n";
+                    newLine              =   User    + " "+ InstallerWIthApache1.getUserName()  + "\n";
                     newLine              +=   Group   + " "+ installer.group   ;
                     PREVIOUSKEY          =   User;
                     }

@@ -17,7 +17,7 @@ public class WriteCCompileFile {
     public static final String INTEL_C_OPTIONS  = "echo -O3 -fPIC -shared -lm ";
     public static final String GNU_C_OPTIONS    = "echo -O3 -fPIC -shared -lm ";
     public static final String SUN_C_OPTIONS    = "echo -O3 -fPIC -shared -lm ";
-    public static  String writeContent(   Installer installer){
+    public static  String writeContent(   BaseInstaller installer){
 
         StringBuilder sb        =   new StringBuilder();
         String ccompiler        =   installer.getcCompilerName();

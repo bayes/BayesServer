@@ -20,20 +20,20 @@ public class WriteSetupFortran {
     public static final String SETENV       =    "setenv";
     public static final String $PATH        =    "${PATH}";
 
-     public static  String writeContent(   Installer installer){
+     public static  String writeContent(   BaseInstaller installer){
    
         StringBuilder sb        =   new StringBuilder();
         
         
-        sb.append(writeC        ( installer));
-        sb.append(writeFortan   ( installer));
-        sb.append(writeEcho     ( installer));
+        sb.append(writeC( installer));
+        sb.append(writeFortan ( installer));
+        sb.append(writeEcho( installer));
 
         return sb.toString();
 
 
     }
-     public static  StringBuilder writeFortan(   Installer installer){
+     public static  StringBuilder writeFortan(   BaseInstaller installer){
         StringBuilder sb        =   new StringBuilder();
         String fcompiler        =   installer.getFortanCompilerName();
         String script           =   installer.getFortanConfigSrcipt();
@@ -67,7 +67,7 @@ public class WriteSetupFortran {
         }
         return sb;
     }
-     public static  StringBuilder writeC(   Installer installer){
+     public static  StringBuilder writeC(   BaseInstaller installer){
         StringBuilder sb        =   new StringBuilder();
         String ccompiler        =   installer.getcCompilerName();
         String script           =   installer.getcConfigSrcipt();
@@ -101,7 +101,7 @@ public class WriteSetupFortran {
         }
         return sb;
     }
-     public static  StringBuilder writeEcho(   Installer installer){
+     public static  StringBuilder writeEcho( BaseInstaller installer){
         StringBuilder sb        =   new StringBuilder();
         sb.append(  ECHO );
         sb.append(  " "+  installer.getFortanCompilerName());

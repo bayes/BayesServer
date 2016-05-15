@@ -21,7 +21,7 @@ public class WriteJnlpFile {
 
 
 
-     public static  String writeContent( Installer installer, File src){
+     public static  String writeContent( BaseInstaller installer, File src){
         StringBuilder sb            =       new StringBuilder();
         String string               =       IO.readFileToString(src );
         Scanner scanner             =       new Scanner(string);
@@ -115,7 +115,7 @@ public class WriteJnlpFile {
                      sb.append("\n");
 
    }
-   public static String writeCodeBase(Installer installer, String line){
+   public static String writeCodeBase(BaseInstaller installer, String line){
     int keyStartIndex       =   line.indexOf(CODEBASE_KEY);
     int keyStartEnd         =   keyStartIndex + CODEBASE_KEY.length();
     int startIndex          =   line.indexOf("\"", keyStartEnd )+ 1;
@@ -130,7 +130,7 @@ public class WriteJnlpFile {
    }
 
    public static void main(String [] atr){
-Installer installer =new Installer();
+InstallerWIthApache1 installer =new InstallerWIthApache1();
     String line = "<jnlp codebase=\"http://bmrw206.wustl.edu:8080/Bayes/\" href=\"launch.jnlp\" spec=\"1.0+\">";
     int keyStartIndex   = line.indexOf(CODEBASE_KEY);
     int keyStartEnd     = keyStartIndex + CODEBASE_KEY.length();

@@ -13,8 +13,9 @@ import java.io.*;
 import java.util.Properties;
 import utilities.*;
 import java.util.regex.*;
+import static bayesserver.SystemInfo.*;
 
-public class Installer implements Constants{
+public abstract class BaseInstaller implements Constants{
 
      
     public static  int DEFAULT_PORT                         =   8080;
@@ -27,33 +28,26 @@ public class Installer implements Constants{
                                                                     LIB_LIST_RESOLVED_SCRIPT,
                                                                     LIB_LIST__UNRESOLVED_SCRIPT
                                                                  };
+    public SystemInfo sysInfo             = new SystemInfo();
+    private PLATFORM platform             = PLATFORM.SUN;
+    
+    public  String installDir             = null;
+    private String serverIP               = null;
+    public  String serverHostName         = null;
+    private  String serverQueue           = Constants.DEFAULT_QUEUE;
+    public  String errorMessage           = "";
+    public  String installationKitName    = null;
+    public  String group                  = null;
+    public  String email                  = "";
+    private  String shell                 = "";
+    private  String unixenv               = "";
+    protected int port                    = DEFAULT_PORT;
+    private  String []groupChoices        = null;
+    public String userHome                = null;
+    public String updateMessage           = "";
 
-    private PLATFORM platform             =   PLATFORM.SUN;
-    
-    public  String installDir             =   null;
-    private String serverIP               =   null;
-    public  String serverHostName         =   null;
-    private  String serverQueue           =   Constants.DEFAULT_QUEUE;
-    public  String errorMessage           =   "";
-    public  String installationKitName    =   null;
-    
-    public  String group                  =   null;
-    public  String email                  =   "";
-    private  String shell                 =   "";
-    private  String unixenv                 =   "";
-    
-    
-    
-    private int port                      =   8080;
-    private  String []groupChoices        =   null;
-    public String userHome                =   null;
-    public String updateMessage           =   "";
-  
-
-  
-
-    private  String destinationDirForConfFile  =   "";
-    private  String destimationConfFileName =  "/httpd"+getPort() + ".conf";
+    private  String destinationDirForConfFile  =    "";
+    private  String destimationConfFileName =   "/httpd"+getPort() + ".conf";
     
     
     private  String destinationDirForStartStopFile  =   "";
@@ -73,14 +67,12 @@ public class Installer implements Constants{
     private final String SEREVR_ROOT_KEY    =   "SEREVR ROOT DIR";
     private  String serveroot               =   "";
 
-    private final String APACHE2_DIR_KEY    =   "APACHE2 DIR";
-    private  Apache2 apache2                =   new Apache2();
     
-    private final String HTTPD_PATH_KEY    =   "HTTPD PATH";
-    private String httpdCommandPath        =   "";
+    protected final String HTTPD_PATH_KEY    =   "HTTPD PATH";
+    protected String httpdCommandPath        =   "";
     
-    private  File virginStartStopFile       =   null;
-    private  File virginConfFile            =   null;
+    protected  File virginStartStopFile       =   null;
+    protected  File virginConfFile            =   null;
     
     private  String errorLog                =   "";
     private  String customLog               =   "";
@@ -113,8 +105,8 @@ public class Installer implements Constants{
     private String    serverSoftware        =    URLManager.getInstallationVersion();
     private String    progressMessage       =   "";
     
-    private boolean skipApacheSetup           =   false;
-    private Properties properties             =   new Properties();
+    protected boolean skipApacheSetup       =   false;
+    protected Properties properties         =   new Properties();
     /* initialization block */
     {
         setPortAndUpdateDependencies(DEFAULT_PORT);
@@ -130,7 +122,7 @@ public class Installer implements Constants{
         installation = newInstallStage;
     }
 
-    public Installer(){
+    public BaseInstaller(){
         System.out.println("Starting installer");
         System.out.println("Reading System Variables");
         recordSystemVariables();
@@ -184,6 +176,14 @@ public class Installer implements Constants{
        this.setInstallMessage(message);
 
    }
+    
+    abstract boolean isReadyToInstallApache();
+    abstract public void updateAndStoreInstallationProperties();
+    abstract public String getInstallationCompeteMessage();
+    abstract public void readFromInstallationProperties();
+    abstract public void apacheSetup(String errorMesssage) throws Exception;
+
+
     public boolean   isReadyToInstall(){
         String message;
         System.out.println("Skip apache checks? "+ this.skipApacheSetup);
@@ -320,80 +320,14 @@ public class Installer implements Constants{
 
        return true;
    }
-    public boolean   isReadyToInstallApache(){
-        String message;
-        if (this.isUbuntu()){
-                return this.apache2.isValid();
-        }
-        else{
-           
-           // is configuration file found/set
-           if (getVirginConfFileName().isEmpty()){
-            utilities.DisplayText.popupMessage("Configuration file is not set\n" +
-                    "Abort installation.");
-            return false;
-           }
 
-            // is start/stop file found
-           if (getVirginStartStopFileName().isEmpty()){
-            utilities.DisplayText.popupMessage("Start/Stop file is not set.\n" +
-                    "Abort installation.");
-            return false;
-           }
-
-            // is httpd command dir location specified
-            if (getHttpdCommandPath() == null || getHttpdCommandPath().isEmpty()){
-                utilities.DisplayText.popupMessage( "The path to HTTPD command file\n" +
-                                                "is  not specified.\n"+
-                                                 "Abort installation.");
-                return false;
-             }
-
-       // is pidfile specified
-         if (getPidFileDirPath()  == null || getPidFileDirPath().isEmpty()){
-            utilities.DisplayText.popupMessage("PIDFILE was not set.\n" +
-                    "Abort installation.");
-            return false;
-         }
-         
-            // document root directory check
-            String docRootDir        =   this.getDocumentRoot();
-            if (docRootDir    == null || docRootDir.isEmpty()){
-                utilities.DisplayText.popupMessage("Document Root directory was not set.\n" +
-                        "Abort installation.");
-                return false;
-           }
-
-            // sererv root directory check
-            String serevrRootDir        =   this.getServeroot();
-            if (serevrRootDir    == null || serevrRootDir.isEmpty()){
-                utilities.DisplayText.popupMessage("Server Root directory was not set.\n" +
-                        "Abort installation.");
-                return false;
-           }
-         
-         // sererv root directory check
-            String logDir        =   this.getLogsDir();
-            if (logDir    == null || logDir.isEmpty()){
-                utilities.DisplayText.popupMessage("Logs directory was not set.\n" +
-                        "Abort installation.");
-                return false;
-           }
-        
-
-       } 
-
-
-       return true;
-   }
+    
     
     public void         install(){
-
         setProgressMessage("Start installation");
         updateInstallationState (INSTALLATION.START);
         installationErrorMessage            =   null;
         String errormessage                 =    null;
-
 
         try{
                installationKitName =  URLManager.getInstallationKitName(platform, is64Bit());
@@ -404,7 +338,7 @@ public class Installer implements Constants{
                 }
                 setProgressMessage("Installation kit name  = "+ installationKitName);
                 updateInstallationState (INSTALLATION.DOWNLOAD);
-            System.out.println("START DOWNLOADING INSTALLATION PACKAGE "+ installationKitName);
+                System.out.println("START DOWNLOADING INSTALLATION PACKAGE "+ installationKitName);
                 setProgressMessage("Start downloading "+installationKitName);
                 boolean success = download();
 
@@ -418,10 +352,8 @@ public class Installer implements Constants{
 
                 setProgressMessage("Change File Permissions");
                 // make sure we clean files from previous installation
-               System.out.println("CLEAN INSTALLATION DIRECTORY");
+                System.out.println("CLEAN INSTALLATION DIRECTORY");
                 cleanInstalationDirOnInstallationStart();
-
-
 
                  setProgressMessage("Start untarring downloaded kits");
                  updateInstallationState (INSTALLATION.UNARCHIVE);
@@ -431,154 +363,122 @@ public class Installer implements Constants{
                  unarchive();
 
 
-
                   // trmporarily make all directories writable
                  setAllDirWritable(true);
 
                  updateInstallationState (INSTALLATION.INSTALL);
       
        if (skipApacheSetup == false){ 
-                if (isUbuntu()){
-                     setProgressMessage("Write apache2 configuration files");
-                    this.setupApache2();
-                    boolean apache2IsGood= this.apache2.writeConfiguratioFiles ();
-                    if (apache2IsGood == false){
-                         errormessage     =    apache2.getConfigFileWriteError();
-                         setProgressMessage( errormessage);
-                         throw new Exception (errormessage );
-                    }
-                }
-                else{
-                     setProgressMessage("Write Start/Stop file");
-                    // write Start/Stop file
-                     boolean isStartStop  = writeStartStopFiles();
-                     if (isStartStop   == false){
-                         errormessage     =    "Failed to write Start/Stop file";
-                         setProgressMessage( errormessage);
-                         throw new Exception (errormessage );
-                     }
-                     setProgressMessage("Write configuration file");
-                     // write Configuration file
-                     boolean isConfig  = writeCentOsApacheConfiguration();
-                     if ( isConfig== false){
-                         errormessage     =    "Failed to write configuration file";
-                         setProgressMessage( errormessage);
-                         throw new Exception (errormessage );
-                     }
-                
-                }
+              apacheSetup(errormessage);
                 
         }
 
 
-                setProgressMessage("Write HTAccess file");
-                // write htacees files
-                boolean isHTAccessFileCreated = writeHTAccessFile();
-                if (isHTAccessFileCreated  == false){
-                     errormessage     =    "Failed to write HTAccess file";
-                     setProgressMessage( errormessage);
-                     throw new Exception (errormessage );
-                }
-
-                setProgressMessage("Create empty .cshrs file");
-                // make sure that empty .cshrs file exists
-                boolean istCSHRCFileCreated = writeCSHRCFile();
-                if (istCSHRCFileCreated  == false){
-                    errormessage     =    "Faield to create .cshrs file";
-                    setProgressMessage( errormessage);
-                    throw new Exception (errormessage );
-                }
-
-                setProgressMessage("Write login file");
-                // write .login file
-                boolean isLoginFileCreated =writeLoginFile();
-                if (isLoginFileCreated  == false){
-                    errormessage     =    "Failed to write .login file";
-                    setProgressMessage( errormessage);
-                    throw new Exception (errormessage );
-                }
-
-
-                setProgressMessage("Write FotranSetup file");
-                // write FortanSetup dir
-                boolean isFortranSetupFileCreated = writeFortranSetupFile();
-                if (isFortranSetupFileCreated  == false){
-                    errormessage     =    "Failed to write FotranSetup  file";
-                    setProgressMessage( errormessage);
-                    throw new Exception (errormessage );
-                }
-
-                setProgressMessage("Write C compiler option file");
-                // write FortanSetup dir
-                boolean isCCompileFileCreated = writeCCompileFile();
-                if (isCCompileFileCreated   == false){
-                    errormessage     =    "Failed to write C compiler option file";
-                    setProgressMessage( errormessage);
-                    throw new Exception (errormessage );
-                }
-
-                setProgressMessage("Write Fostran compiler option file");
-                // write FortanSetup dir
-                boolean isFCompileFileCreated = writeFCompileFile();
-                if ( isFCompileFileCreated  == false){
-                    errormessage     =    "Failed to write Fortran compiler option file";
-                    setProgressMessage( errormessage);
-                    throw new Exception (errormessage );
-                }
-
-
-
-
-                setProgressMessage("Write launch.jnlp file");
-                // modify launch.jnlp file in Bayes directory
-                boolean isJNLPModified = writeJNLPFile();
-                if (isJNLPModified  == false){
-                    errormessage     =    "Failed to write launch.jnlp file";
-                    setProgressMessage( errormessage);
-                    throw new Exception (errormessage );
-                }
-           if (skipApacheSetup == false && isUbuntu() == false){
-               setProgressMessage("Write  Start/Stop file executable");
-                // make sure Start/Stop file is executable
-                makeStartStopFileExcecutable();
-           }
-
-                setProgressMessage("Write installation info file");
-                //write installation information dir at the end
-                writeInstallationFile();
-
-               //Store properties to persistent storage
-                updateAndStoreInstallationProperties();
-               
-                
-                setProgressMessage("Reset Permissions");
-                // set permission to writable for all directories
-                setAllDirWritable(false);
-
-                
-                
-                setProgressMessage("Installation is complete");
-                updateInstallationState (INSTALLATION.COMPLETE);
-                
-                writeDebugFile("Installation is compete.");
-                
-                // register Installation
-                registerInstallation();
-                
-                writeDebugFile("Registration is compete.");
-
+        setProgressMessage("Write HTAccess file");
+        // write htacees files
+        boolean isHTAccessFileCreated = writeHTAccessFile();
+        if (isHTAccessFileCreated  == false){
+             errormessage     =    "Failed to write HTAccess file";
+             setProgressMessage( errormessage);
+             throw new Exception (errormessage );
         }
-        catch(Exception e){
-            String err          =   e.getMessage();
-            installationErrorMessage = "Unknown";
-             updateInstallationState (INSTALLATION.FAILED);
-            if (err != null && err.isEmpty() == false){
-                installationErrorMessage = err;
-            }
-            e.printStackTrace();
 
+        setProgressMessage("Create empty .cshrs file");
+        // make sure that empty .cshrs file exists
+        boolean istCSHRCFileCreated = writeCSHRCFile();
+        if (istCSHRCFileCreated  == false){
+            errormessage     =    "Faield to create .cshrs file";
+            setProgressMessage( errormessage);
+            throw new Exception (errormessage );
         }
-       
+
+        setProgressMessage("Write login file");
+        // write .login file
+        boolean isLoginFileCreated =writeLoginFile();
+        if (isLoginFileCreated  == false){
+            errormessage     =    "Failed to write .login file";
+            setProgressMessage( errormessage);
+            throw new Exception (errormessage );
+        }
+
+
+        setProgressMessage("Write FotranSetup file");
+        // write FortanSetup dir
+        boolean isFortranSetupFileCreated = writeFortranSetupFile();
+        if (isFortranSetupFileCreated  == false){
+            errormessage     =    "Failed to write FotranSetup  file";
+            setProgressMessage( errormessage);
+            throw new Exception (errormessage );
+        }
+
+        setProgressMessage("Write C compiler option file");
+        // write FortanSetup dir
+        boolean isCCompileFileCreated = writeCCompileFile();
+        if (isCCompileFileCreated   == false){
+            errormessage     =    "Failed to write C compiler option file";
+            setProgressMessage( errormessage);
+            throw new Exception (errormessage );
+        }
+
+        setProgressMessage("Write Fostran compiler option file");
+        // write FortanSetup dir
+        boolean isFCompileFileCreated = writeFCompileFile();
+        if ( isFCompileFileCreated  == false){
+            errormessage     =    "Failed to write Fortran compiler option file";
+            setProgressMessage( errormessage);
+            throw new Exception (errormessage );
+        }
+
+
+        setProgressMessage("Write launch.jnlp file");
+        // modify launch.jnlp file in Bayes directory
+        boolean isJNLPModified = writeJNLPFile();
+        if (isJNLPModified  == false){
+            errormessage     =    "Failed to write launch.jnlp file";
+            setProgressMessage( errormessage);
+            throw new Exception (errormessage );
+        }
+       if (skipApacheSetup == false){
+           setProgressMessage("Write  Start/Stop file executable");
+            // make sure Start/Stop file is executable
+            makeStartStopFileExcecutable();
+       }
+
+        setProgressMessage("Write installation info file");
+        //write installation information dir at the end
+        writeInstallationFile();
+
+       //Store properties to persistent storage
+        updateAndStoreInstallationProperties();
+
+
+        setProgressMessage("Reset Permissions");
+        // set permission to writable for all directories
+        setAllDirWritable(false);
+
+
+        setProgressMessage("Installation is complete");
+        updateInstallationState (INSTALLATION.COMPLETE);
+
+        writeDebugFile("Installation is compete.");
+
+        // register Installation
+        registerInstallation();
+
+        writeDebugFile("Registration is compete.");
+
+    }
+    catch(Exception e){
+        String err          =   e.getMessage();
+        installationErrorMessage = "Unknown";
+         updateInstallationState (INSTALLATION.FAILED);
+        if (err != null && err.isEmpty() == false){
+            installationErrorMessage = err;
+        }
+        e.printStackTrace();
+
+    }
+
 
 
        
@@ -896,52 +796,6 @@ public class Installer implements Constants{
         return true;
     }
     
-    public void readFromInstallationProperties(){
-        readProperties();
-        Properties p      =   this.properties;
-        
-        /*
-        File dir            =  getDirectoryFromProperty(p,DOCROOT_DIRECTORY_KEY );
-        if (dir != null){ this.documentRootParenDir = dir.getAbsolutePath();}
-        
-        dir            =  getDirectoryFromProperty(p,PID_DIRECTORY_KEY );
-        if (dir != null){ this.pidFileDir = dir.getAbsolutePath();}
-        
-        dir            =  getDirectoryFromProperty(p,LOGS_DIRECTORY_KEY );
-        if (dir != null){ this.logsDir = dir.getAbsolutePath();}
-        
-        dir            =  getDirectoryFromProperty(p,SEREVR_ROOT_KEY);
-        if (dir != null){ this.serveroot= dir.getAbsolutePath();}
-        
-        File file       =  getFileFromProperty(p,HTTPD_PATH_KEY );
-        if (dir != null){ this.httpdCommandPath = file.getAbsolutePath();}
-        */
-        File dir            =  getDirectoryFromProperty(p,APACHE2_DIR_KEY  );
-        if (dir != null){
-            Apache2  ap    = new  Apache2(dir);
-            if (ap.checkApache2InstanceIntegrity() == true){
-                this.apache2 = ap;
-            }
-        
-        }
-    }
-    public void updateAndStoreInstallationProperties(){
-        Properties p      =   this.properties;
-        
-        /*
-        setProperty(p, DOCROOT_DIRECTORY_KEY , documentRootParenDir);
-        setProperty(p, PID_DIRECTORY_KEY , pidFileDir );
-        setProperty(p, LOGS_DIRECTORY_KEY  , logsDir );
-        setProperty(p, SEREVR_ROOT_KEY ,   serveroot);
-        setProperty(p, HTTPD_PATH_KEY , httpdCommandPath);
-        
-         */
-        if (apache2.isValid()){
-            setProperty(p, APACHE2_DIR_KEY , apache2.getApache2Dir().getAbsolutePath());
-        }
-        writeProperties();
-    
-    }
     
     public void setProperty(Properties props, String key, String value){
         
@@ -1143,67 +997,7 @@ public class Installer implements Constants{
    }
    
    
- 
    
-    public String    getInstallationCompeteMessage(){
-      if (this.skipApacheSetup){return "";}
-      if (this.isUbuntu()){return apache2.getSudoScriptToCompleteInstallation(virginConfFile);}
-       StringBuilder sb         =   new StringBuilder();
-       String dstStartStop      =   getDestinationStartStopFileAbsolutePath();
-       String dstConfFile       =   getDestinationConfFileAbsolutePath();
-       String srcStartStop      =   getInstallationStartStopFileAbsolutePath();
-       String srcConfFile       =   getInstallationConfFileAbsolutePath();
-       String docRoot           =   getDocumentRootAbsolutePath();
-
-       File   docRootFile       =   new File( docRoot);
-       File   linkFile          =   new File( docRoot,FileManager.BAYES);
-       File   startStopFile     =   new File(  dstStartStop);
-       File   confFile          =   new File(   dstConfFile);
-
-
-       boolean docRootExist    =   docRootFile.exists();
-       boolean linkFleExist    =   linkFile.exists();
-       boolean startStopExist  =   startStopFile.exists();
-       boolean confFileExist   =   confFile.exists();
-
-      if(startStopExist && confFileExist){
-         sb.append(dstStartStop + " stop");
-         sb.append("\n");
-      }
-
-
-       sb.append("unalias cp" );
-       sb.append("\n");
-       sb.append("cp "+ srcConfFile + " "+dstConfFile );
-       sb.append("\n");
-       sb.append("cp "+ srcStartStop + " "+dstStartStop );
-       sb.append("\n");
-       
-       if (docRootExist ==  false){
-           sb.append("mkdir -p "+docRoot + "\n");
-       }
-        sb.append("cd "+ docRootFile.getPath() );
-        sb.append("\n");
-
-        sb.append("rm -f "+ FileManager.BAYES);
-        sb.append("\n");
-
-
-        String dir          =   FileManager.getBayesDir().getAbsolutePath();
-       // sb.append("ln -s ~bayes/"+ FileManager.BAYES);
-        sb.append("ln -s "+ dir);
-        sb.append("\n");
-       
-
-    
-
-       sb.append(dstStartStop + " start");
-       sb.append("\n");
-
-
-        return sb.toString();
-
-   }
     public String    getFinaleStageHeader(){
        StringBuilder sb         =   new StringBuilder();
        sb.append("<html>");
@@ -1605,53 +1399,8 @@ public class Installer implements Constants{
       
    }
 
-   public static String     findReleaseSun(){
-       String out           =    null;
-       File file            =   new File("/etc/release");
-       Scanner scanner      =   null;
-
-       try {
-              scanner       =   new Scanner(file);
-            if (scanner.hasNextLine() == true){
-                out         =    scanner.nextLine().trim();
-            }
-       }
-       catch (FileNotFoundException ex) {
-             ex.printStackTrace();
-       }
-       finally{
-        if(scanner!= null) {scanner.close();}
-        return out;
-       }
-   }
-   public static String     findReleaseLinux(){
-       String out           =   null;
-       File dir             =   new File ("/etc");
-       if (dir.exists() == false || dir.isDirectory() == false){
-                return      out;
-       }
-       File [] files         =   dir.listFiles( new  ReleaseFileFilter());
 
 
-       Scanner scanner      =   null;
-       File releaseFile     =   files[0];
-       try {
-              scanner       =   new Scanner(releaseFile );
-            if (scanner.hasNextLine() == true){
-                out         =    scanner.nextLine().trim();
-            }
-            
-            System.out.println("Release File = "+releaseFile.getPath());
-            System.out.println("Release parsed from release file  \""+ out+"\"");
-       }
-       catch (FileNotFoundException ex) {
-             ex.printStackTrace();
-       }
-       finally{
-        if(scanner!= null) {scanner.close();}
-        return out;
-       }
-   }
    public void              setShellValue(){
         int ind = unixenv.indexOf("SHELL");
         if(ind < 0){return;}
@@ -1763,21 +1512,8 @@ public class Installer implements Constants{
        if (user.equals("root")){return false;}
        else{return true;}
     }
-    public boolean isUbuntu (){
-        boolean out     =    false;
-        if (osrelease != null){
-           out =  osrelease.contains(PLATFORM.UBUNTU);
-        }
-        return out;
-    }
-    
-    private void setupApache2(){
-        apache2.setPort(port);
-        apache2.setGroup(group);
-        apache2.setEmail(email);
-        apache2.setScriptAlias(FileManager. getCgiBinDir().getAbsolutePath());
-        apache2.setConfigFileStorageDir(FileManager.getSystemDir());
-    }
+
+
    
     private String parseGroupName (String resultOfIdCommand){
         Pattern p   =   Pattern.compile("gid=\\d+?\\(");
@@ -1811,31 +1547,18 @@ public class Installer implements Constants{
   
    
 
-    public static void main(String [] args){
-    Installer i = new Installer();
-    //i.email  = "inside bmrl network";
-      // i.registerInstallation();
-        System.out.println(i.getFinaleStageHeader());
-     // File d = new File ("/Users/apple/Desktop/FortranSetup");
-      try{
-          Thread.sleep(5000l);
-      }
-      catch(Exception e){e.printStackTrace();}
-        //System.out.println("Dones");
-      //new Installer("a").recordCompilerVariables(d);
-   
-    }
+
 
 
      public void     setNoFortanCompiler(){
-            setFortanDir(Installer.NOCOMPILER);
-            setFortanCompilerName( Installer.NOCOMPILER);
-            setFortanConfigSrcipt( Installer.NOCOMPILER);
+            setFortanDir(BaseInstaller.NOCOMPILER);
+            setFortanCompilerName( BaseInstaller.NOCOMPILER);
+            setFortanConfigSrcipt( BaseInstaller.NOCOMPILER);
      };
      public void     setNoCCompiler(){
-            setcDir(Installer.NOCOMPILER);
-            setcCompilerName( Installer.NOCOMPILER);
-            setcConfigScript( Installer.NOCOMPILER);
+            setcDir(BaseInstaller.NOCOMPILER);
+            setcCompilerName( BaseInstaller.NOCOMPILER);
+            setcConfigScript( BaseInstaller.NOCOMPILER);
      };
      
     public void setPortAndUpdateDependencies(int port) {
@@ -2109,13 +1832,13 @@ public class Installer implements Constants{
 
 
     public void    resetFortranCompilers(){
-        this.setFortanCompilerName(Installer.NOCOMPILER);
-        this.setFortanDir(Installer.NOCOMPILER);
+        this.setFortanCompilerName(BaseInstaller.NOCOMPILER);
+        this.setFortanDir(BaseInstaller.NOCOMPILER);
         this.setFortanConfigSrcipt(NOCOMPILER);
     }
     public void    resetCCompilers(){
-        this.setcCompilerName(Installer.NOCOMPILER);
-        this.setcDir(Installer.NOCOMPILER);
+        this.setcCompilerName(BaseInstaller.NOCOMPILER);
+        this.setcDir(BaseInstaller.NOCOMPILER);
         this.setcConfigScript(NOCOMPILER);
     }
     public void    resetCompilers(){
@@ -2314,18 +2037,6 @@ public class Installer implements Constants{
         this.skipApacheSetup = skipApacheSetup;
     }
 
-  
-    public Apache2 getApache2() {
-        return apache2;
-    }
-
-    public void setApache2(Apache2 apache2) {
-        this.apache2 = apache2;
-    }
-
-    
-    
-    
 
      class ConfigFileFilter implements java.io.FilenameFilter{
         public boolean accept(File dir, String name)    {
@@ -2335,28 +2046,13 @@ public class Installer implements Constants{
 
          }
      }
-     static class ReleaseFileFilter implements java.io.FilenameFilter{
-        public boolean accept(File dir, String name)    {
-            boolean accept  = false;
-            if (name.endsWith("release")){
-                accept = true;
-            }
-            else if (name.endsWith("issue")){
-                accept = true;
-            }
-            else {}
-            return accept;
-
-
-         }
-     }
+     
      static class LocalScriptFilter implements java.io.FilenameFilter{
         public boolean accept(File dir, String name)    {
             for (String script : LOCAL_SCRIPTS) {
                 if (name.equals(script)){return true;}
             }
             return false;
-
 
          }
      }

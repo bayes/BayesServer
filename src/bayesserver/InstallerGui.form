@@ -1254,7 +1254,7 @@
                             <Property name="editable" type="boolean" value="false"/>
                             <Property name="horizontalAlignment" type="int" value="2"/>
                             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                              <Connection code="getInstaller().getApache2().getPath()" type="code"/>
+                              <Connection code="&quot;&quot;" type="code"/>
                             </Property>
                             <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt; &lt;p style=&quot;margin: 6px;&quot;&gt;&lt;font size=&quot;4&quot;&gt;&#xa;Path to apache server instance that will run the bayesian software.&lt;br&gt;&#xa;Lets say you want to install apache instance by name &#x201c;apache-bayes.&#x201d;&lt;br&gt;&#xa;For standard apache installation execute following:&lt;br&gt;&#xa;sudo sh /usr/share/doc/apache2.2-common/examples/setup-instance bayes&lt;br&gt;&#xa;This will create new &quot;/etc/apache2-bayes&quot; apache server instance.&lt;br&gt;&#xa;&#xa;&#xa;&#xa;&lt;/font&gt;&lt;/p&gt;&lt;/html&gt;&#xa;" noResource="true"/>
                             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
@@ -1268,6 +1268,9 @@
                             </Property>
                             <Property name="name" type="java.lang.String" value="apache2PathTextField" noResource="true"/>
                           </Properties>
+                          <Events>
+                            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="apache2PathTextFieldActionPerformed"/>
+                          </Events>
                           <Constraints>
                             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
                               <GridBagConstraints gridX="1" gridY="0" gridWidth="1" gridHeight="1" fill="1" ipadX="0" ipadY="0" insetsTop="2" insetsLeft="0" insetsBottom="2" insetsRight="0" anchor="10" weightX="2.0" weightY="1.0"/>

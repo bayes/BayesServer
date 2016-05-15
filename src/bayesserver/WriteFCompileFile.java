@@ -18,7 +18,7 @@ public class WriteFCompileFile {
     public static final String GNU_F_OPTIONS    = "echo -shared -fPIC -fopenmp -ffixed-line-length-none ";
     public static final String SUN_F_OPTIONS    = "echo -xtarget=generic -dalign -O5 -e -vpara -openmp -explicitpar -stackvar -G -pic -ztext -h ";
  
-    public static  String writeContent(   Installer installer){
+    public static  String writeContent(   BaseInstaller installer){
 
         StringBuilder sb        =   new StringBuilder();
         String compiler        =   installer.getFortanCompilerName();

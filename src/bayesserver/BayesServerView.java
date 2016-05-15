@@ -240,7 +240,7 @@ public class BayesServerView extends FrameView implements Constants {
     private void installButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_installButtonActionPerformed
         System.out.println("Starting installation");
         System.out.println("*****************************************");
-        Installer installer     =   getInstaller() ;
+        BaseInstaller installer     =   getInstaller() ;
         boolean canInstall      =   installer.isReadyToInstall();
         if (canInstall == false) {return;}
         installInBackground();
@@ -381,7 +381,7 @@ public class BayesServerView extends FrameView implements Constants {
     public javax.swing.JPanel        getMainPanel() {
         return mainPanel;
     }
-    public bayesserver.Installer     getInstaller() {
+    public BaseInstaller getInstaller() {
         return startPane.getInstaller();
     }
 

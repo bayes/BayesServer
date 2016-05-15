@@ -32,7 +32,7 @@ public interface Constants {
 
     }
      public static enum PLATFORM {
-
+         UNKNOWN       (   "unknown" ),
          SUN           (   "sun4"),
          LINUX         (   "LinuxPc" );
 

@@ -26,7 +26,13 @@ import utilities.DisplayText;
  * @author apple
  */
 public class InstallerGui extends javax.swing.JPanel implements Constants {
-    private Installer installer                     =  new Installer();
+    public static BaseInstaller setupInstaller() {
+        SystemInfo sysInfo = new SystemInfo();
+        if(sysInfo.isApache2Installed()) return new InstallerWIthApache2();      
+        else return new InstallerWIthApache1();  
+    }
+    
+    private BaseInstaller installer =   setupInstaller();
 
 
     /** Creates new form InstallerGui */
@@ -35,7 +41,8 @@ public class InstallerGui extends javax.swing.JPanel implements Constants {
         updateGUIOnInitialization();
 
     }
-   
+     
+    
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -804,10 +811,11 @@ public class InstallerGui extends javax.swing.JPanel implements Constants {
         apache2PathTextField.setBackground(Color.WHITE);
         apache2PathTextField.setEditable(false);
         apache2PathTextField.setHorizontalAlignment(javax.swing.JTextField.LEFT);
-        apache2PathTextField.setText(getInstaller().getApache2().getPath());
+        apache2PathTextField.setText("");
         apache2PathTextField.setToolTipText("<html> <p style=\"margin: 6px;\"><font size=\"4\">\nPath to apache server instance that will run the bayesian software.<br>\nLets say you want to install apache instance by name “apache-bayes.”<br>\nFor standard apache installation execute following:<br>\nsudo sh /usr/share/doc/apache2.2-common/examples/setup-instance bayes<br>\nThis will create new \"/etc/apache2-bayes\" apache server instance.<br>\n\n\n\n</font></p></html>\n"); // NOI18N
         apache2PathTextField.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED), null));
         apache2PathTextField.setName("apache2PathTextField"); // NOI18N
+        apache2PathTextField.addActionListener(formListener);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -983,6 +991,9 @@ public class InstallerGui extends javax.swing.JPanel implements Constants {
             }
             else if (evt.getSource() == skipApacheSetupCheckBox) {
                 InstallerGui.this.skipApacheSetupCheckBoxActionPerformed(evt);
+            }
+            else if (evt.getSource() == apache2PathTextField) {
+                InstallerGui.this.apache2PathTextFieldActionPerformed(evt);
             }
         }
 
@@ -1239,23 +1250,27 @@ private void portFormattedTextFieldActionPerformed(java.awt.event.ActionEvent ev
         fc.setMultiSelectionEnabled(false);
         int returnVal = fc.showOpenDialog(null);
 
-         if (returnVal == JFileChooser.APPROVE_OPTION) {
-           File file     =   fc.getSelectedFile ();
-           Apache2 ap2      =   new Apache2(file );
-           boolean valid    =   ap2.checkApache2InstanceIntegrity();
-           if (valid == false){
-               DisplayText.popupErrorMessage(ap2.getInegrityCheckError());
-           }
-           else{
-               getInstaller().setApache2(ap2);
-         }
-             apache2PathTextField.setText( getInstaller().getApache2().getPath());
-         }
+//         if (returnVal == JFileChooser.APPROVE_OPTION) {
+//           File file     =   fc.getSelectedFile ();
+//           Apache2 ap2      =   new Apache2(file );
+//           boolean valid    =   ap2.checkApache2InstanceIntegrity();
+//           if (valid == false){
+//               DisplayText.popupErrorMessage(ap2.getInegrityCheckError());
+//           }
+//           else{
+//               getInstaller().setApache2(ap2);
+//         }
+//             apache2PathTextField.setText( getInstaller().getApache2().getPath());
+//         }
     }//GEN-LAST:event_modifyApache2ButtonActionPerformed
 
     private void skipApacheSetupCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_skipApacheSetupCheckBoxActionPerformed
         syncApacheSetup();
     }//GEN-LAST:event_skipApacheSetupCheckBoxActionPerformed
+
+    private void apache2PathTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_apache2PathTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_apache2PathTextFieldActionPerformed
  
     public void updateFromGui(){
         // update email
@@ -1450,7 +1465,7 @@ private void portFormattedTextFieldActionPerformed(java.awt.event.ActionEvent ev
 
             getInstaller().setFortanDir(dirname);
             getInstaller().setFortanCompilerName( compname);
-            getInstaller().setFortanConfigSrcipt(Installer.NOCOMPILER);
+            getInstaller().setFortanConfigSrcipt(InstallerWIthApache1.NOCOMPILER);
             getFCompilerTextField().setText(getInstaller().getFortanCompilerAbsolutePath());
 
 
@@ -1474,7 +1489,7 @@ private void portFormattedTextFieldActionPerformed(java.awt.event.ActionEvent ev
 
             getInstaller().setcDir(dirname);
             getInstaller().setcCompilerName( compname);
-            getInstaller().setcConfigScript(Installer.NOCOMPILER );
+            getInstaller().setcConfigScript(InstallerWIthApache1.NOCOMPILER );
             getCCompilerTextField().setText(getInstaller().getCCompilerAbsolutePath());
 
 
@@ -1499,7 +1514,7 @@ private void portFormattedTextFieldActionPerformed(java.awt.event.ActionEvent ev
 
             getInstaller().setFortanDir(dirname);
             getInstaller().setFortanCompilerName( compname);
-            getInstaller().setcConfigScript(Installer.NOCOMPILER );
+            getInstaller().setcConfigScript(InstallerWIthApache1.NOCOMPILER );
             getFCompilerTextField().setText(getInstaller().getFortanCompilerAbsolutePath());
 
 
@@ -1525,7 +1540,7 @@ private void portFormattedTextFieldActionPerformed(java.awt.event.ActionEvent ev
 
             getInstaller().setcDir(dirname);
             getInstaller().setcCompilerName( compname);
-            getInstaller().setcConfigScript(Installer.NOCOMPILER );
+            getInstaller().setcConfigScript(InstallerWIthApache1.NOCOMPILER );
             getCCompilerTextField().setText(getInstaller().getCCompilerAbsolutePath());
 
 
@@ -1546,7 +1561,7 @@ private void portFormattedTextFieldActionPerformed(java.awt.event.ActionEvent ev
 
 
     private void updateGUIOnInitialization(){
-         boolean isUbuntu = getInstaller().isUbuntu();
+         boolean isUbuntu = getInstaller().sysInfo.isUbuntu();
          if (isUbuntu){
              this.apacheTabPane.setSelectedComponent(this.debianApacheSetupPane);
          }
@@ -1873,33 +1888,9 @@ private void portFormattedTextFieldActionPerformed(java.awt.event.ActionEvent ev
 
    
 
-    public Installer getInstaller() {
+    public BaseInstaller getInstaller() {
         return installer;
     }
-    public void setInstaller(Installer installer) {
-        this.installer = installer;
-    }
-
-
   
-
-   
-    
-
-    
-
-   
-
-   
-   
-
-    
-
-
-   
-
-  
-
-
 
 }
