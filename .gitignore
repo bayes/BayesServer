@@ -1,10 +1,11 @@
-/nbproject/private/
+/nbproject/**
 /dist/**
 /build/test/
 test/
-/build/*
 /build/**
 /nbproject/**
+signed/**
+dist.zip
 
 build.xml
 preview-application.html
@@ -29,7 +30,6 @@ buildBackup.xml
 ehthumbs.db
 Thumbs.db
 
-
 nbproject/genfiles.properties
 *.xml
 **.mf
@@ -37,6 +37,3 @@ nbproject/genfiles.properties
 /manifest.mf
 
 
-build/**
-signed/**
-*.so
