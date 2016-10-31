@@ -1652,6 +1652,7 @@ public class Installer implements Constants{
         return out;
        }
    }
+      
    public void              setShellValue(){
         int ind = unixenv.indexOf("SHELL");
         if(ind < 0){return;}
@@ -2335,21 +2336,23 @@ public class Installer implements Constants{
 
          }
      }
+          
      static class ReleaseFileFilter implements java.io.FilenameFilter{
-        public boolean accept(File dir, String name)    {
-            boolean accept  = false;
-            if (name.endsWith("release")){
+         // add trouble makers to blacklist so they are skipped
+        final List<String> blacklist = Arrays.asList("lsb-release");
+        
+        public boolean accept(File dir, String name)    {    
+            boolean accept = false;
+            if (blacklist.contains(name)) {
+                // accept will be false
+            } else if (name.endsWith("release") || (name.endsWith("issue"))){
                 accept = true;
             }
-            else if (name.endsWith("issue")){
-                accept = true;
-            }
-            else {}
             return accept;
-
-
          }
      }
+
+     
      static class LocalScriptFilter implements java.io.FilenameFilter{
         public boolean accept(File dir, String name)    {
             for (String script : LOCAL_SCRIPTS) {
