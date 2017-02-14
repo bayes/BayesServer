@@ -1,7 +1,7 @@
 import java.io.*;
 
 
-public class RunCommand {
+public class RunCommand { 
 
    public static String execute(String str){
           String [] comandandargs  = str.trim().split("\\s");
